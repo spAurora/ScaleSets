@@ -1,23 +1,40 @@
-﻿生成启动时间为 2019/10/17 13:30:52。
+﻿生成启动时间为 2019/10/20 15:30:59。
      1>项目“C:\Users\Admin\Desktop\ScaleSets\ScaleSets\ScaleSets.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
-         正在对“Debug\ScaleSets.unsuccessfulbuild”执行 Touch 任务。
+         正在创建“Debug\ScaleSets.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
        ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt test.cpp
-         test.cpp
+         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt ScaleSetsMain.cpp
+         ScaleSetsMain.cpp
      1>c:\opencv2.2\include\opencv2\flann\logger.h(66): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : 参见“fopen”的声明
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(74): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(75): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(89): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(92): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(139): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(140): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(141): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slic.h(142): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(216): warning C4101: “endTime”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(113): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(171): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(304) : 参见“scanf”的声明
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(30): warning C4101: “y”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(30): warning C4101: “x”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(29): warning C4101: “i”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(40): warning C4101: “outlabels”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(29): warning C4101: “ii”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(39): warning C4101: “outputNumSuperpixels”: 未引用的局部变量
        ManifestResourceCompile:
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\ScaleSets.exe.embed.manifest.res" Debug\ScaleSets_manifest.rc 
+         所有输出均为最新。
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.exe" /INCREMENTAL /NOLOGO opencv_core220d.lib opencv_highgui220d.lib opencv_video220d.lib opencv_ml220d.lib opencv_legacy220d.lib opencv_imgproc220d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\ScaleSets.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.lib" /MACHINE:X86 Debug\ScaleSets.exe.embed.manifest.res
-         Debug\test.obj
+         Debug\ScaleSetsMain.obj
        Manifest:
          C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\ScaleSets.exe.embed.manifest" /manifest Debug\ScaleSets.exe.intermediate.manifest
-         C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\bin\rc.exe /nologo /fo"Debug\ScaleSets.exe.embed.manifest.res" Debug\ScaleSets_manifest.rc 
+         所有输出均为最新。
        LinkEmbedManifest:
-         C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.exe" /INCREMENTAL /NOLOGO opencv_core220d.lib opencv_highgui220d.lib opencv_video220d.lib opencv_ml220d.lib opencv_legacy220d.lib opencv_imgproc220d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\ScaleSets.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.lib" /MACHINE:X86 Debug\ScaleSets.exe.embed.manifest.res
-         Debug\test.obj
+         所有输出均为最新。
          ScaleSets.vcxproj -> C:\Users\Admin\Desktop\ScaleSets\ScaleSets\Debug\ScaleSets.exe
        FinalizeBuildStatus:
          正在删除文件“Debug\ScaleSets.unsuccessfulbuild”。
@@ -26,4 +43,4 @@
 
 生成成功。
 
-已用时间 00:00:02.47
+已用时间 00:00:02.86

@@ -146,24 +146,27 @@ int main()
 		printf("\n");
 	}
 	
-	//建立基层超像素对象集合	p
-	CSuperPixelSet* csps = new CSuperPixelSet[finalNumberOfLabels]; //调用无参构造
+	//实例化基层超像素对象
+	CSuperPixelSet* csps = new CSuperPixelSet[finalNumberOfLabels]; 
+	//实例化层次树各个节点
 	BTreeNode* hierarchicalTree = new BTreeNode[2*finalNumberOfLabels-1]; 
 	//超像素过分割，建立超像素实体集
-	createSuperPixelVector(clabels, width, height, csps, srimg, finalNumberOfLabels,hierarchicalTree);
-
-	//建立初始拓扑图	p
-
+	createSuperPixelVector(clabels, width, height, csps, srimg, finalNumberOfLabels, hierarchicalTree);
+	//实例化拓扑图头结点
 	ArrayHeadGraphNode *mAhgn = new ArrayHeadGraphNode[2*finalNumberOfLabels-1];   //严格的2n-1，最终层次树的头结点下标为2n-2
+	//建立初始拓扑图
 	createToplogicalGraph(clabels, width, height, mAhgn,numSuperpixels);
 
 
-	printf("\n最终层次树结点数：%d\n", finalNumberOfLabels*2-2);
+	printf("\n最终层次树结点数：%d\n", 2*finalNumberOfLabels - 2);
 	system("pause");
 	
+	/****************************************/
 	//构建层次树
 	createHierarchicalTree(mAhgn, hierarchicalTree, srimg, 200, finalNumberOfLabels);
+	/***************************************/
 
+	//后处理
 	int level;
 	int *newLabels = new int[height*width] ();
 	do{

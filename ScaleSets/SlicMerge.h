@@ -497,13 +497,14 @@ void createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTre
 			//system("pause");
 			clock_t startTime,endTime; 
 			startTime = clock();
+			/*************/
+			//遍历并融合节点（只融合一次）
 			traversalAndMerge(mAhgn, hierarchicalTree, graphAndTreeEnd, nowLevel, allowDifference, NodeMerge, superPixelnum);
+			/*************/
 			endTime = clock();
 			cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 			if (NodeMerge == false)
 				printf("没有发生融合...\n\n");
-			/*if (NodeMerge == true)
-				graphAndTreeEnd++;*/
 		} while (NodeMerge == true);
 
 		printf("处理下一等级.....\n");

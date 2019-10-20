@@ -1,4 +1,4 @@
-﻿生成启动时间为 2019/10/20 15:30:59。
+﻿生成启动时间为 2019/10/21 1:03:12。
      1>项目“C:\Users\Admin\Desktop\ScaleSets\ScaleSets\ScaleSets.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Debug\ScaleSets.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
@@ -17,8 +17,9 @@
      1>c:\users\admin\desktop\scalesets\scalesets\slic.h(142): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
      1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(216): warning C4101: “endTime”: 未引用的局部变量
      1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(113): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(171): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(174): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(304) : 参见“scanf”的声明
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(205): warning C4018: “<”: 有符号/无符号不匹配
      1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(30): warning C4101: “y”: 未引用的局部变量
      1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(30): warning C4101: “x”: 未引用的局部变量
      1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(29): warning C4101: “i”: 未引用的局部变量
@@ -43,4 +44,4 @@
 
 生成成功。
 
-已用时间 00:00:02.86
+已用时间 00:00:02.64

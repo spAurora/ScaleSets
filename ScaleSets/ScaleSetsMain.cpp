@@ -192,6 +192,35 @@ int main()
 		for (int i = 0; i< 10; i++)
 			oNode[i].showInformation();
 
+		//19-10-20
+		//计算对象序列属性
+		//计算vk
+		double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
+
+		for (int i = 0; i<objectNum; i++)
+		{
+			double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
+			double tempSqr = 0, sumSqr = 0;
+			/*光谱标准差以蓝绿红三个取平均为准*/
+			for (int j = 0; j<oNode[i].pixelLocation.size(); j++)
+			{
+				tempBsqr = (srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB)*(srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB);
+				tempGsqr = (srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG)*(srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG);
+				tempRsqr = (srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR)*(srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR);
+				tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
+				sumSqr += tempSqr;
+			}
+			spectualStandDeviation = sqrt(sumSqr/oNode[i].pixelnum);
+			tempaq = oNode[i].pixelnum*(spectualStandDeviation); //面积乘以光谱标准差
+			sumaq += tempaq;
+		}
+		vk = sumaq/(width*height);
+		printf("\n *******************************************\n");
+		printf("vk = %lf", vk);
+		printf("\n *******************************************\n");
+
+
+
 		//融合效果展示
 		Mat imgMerge = srimg.clone();
 		for (int i = 1; i<height-1; i++)

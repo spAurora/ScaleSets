@@ -475,19 +475,32 @@ void traversalAndMerge(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree,int
 
 //创建层次树
 //图头结点数组、层次树数组、原图像、分层数、超像素数
-void createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree, cv::Mat& srimg, int levelindex,int superPixelnum)
+void createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree, cv::Mat& srimg, double maxDifference,int superPixelnum)
 {
+	int levelindex = 510;  //*临时*
 	int nowLevel = 1;
 	bool NodeMerge = false;
-	double allowDifference = 0;
+	double allowDifference = 0; //允许的异质性差异
 	int graphAndTreeEnd = superPixelnum - 1;
+	bool overDifferenceLimit = false;
 
 	for (int i = 1; i <= levelindex; i++)
 	{
 		nowLevel++;
-		allowDifference =allowDifference + ((double)510/(double)levelindex);
+
+		if (overDifferenceLimit != true) // 不超限的情况下调整步长
+			allowDifference =allowDifference + ((double)510/(double)levelindex); //当前为固定步长
+		else
+			break;
+
+		if(allowDifference >= maxDifference) //超限
+		{
+			allowDifference = 1024;   //超限情况下直接将允许差调整到最大
+			overDifferenceLimit = true;
+		}
+
 		printf("allDifference:%lf\n", allowDifference);
-		//system("pause");
+
 		NodeMerge = false;
 		do 
 		{	

@@ -43,7 +43,11 @@ int main()
     int numelements;
     int numSuperpixels = 200;//default value
     double compactness = 10;//default value
-
+	double maxDiffence = 200;//default value
+	
+	numSuperpixels = 3000; //**超像素个数,适用于demo
+    compactness = 10; //**紧凑度
+	maxDiffence = 20; //**允许的最大异质性数值
 
 	Mat zy1, zy2, zy3, zy4, srimg;
 	zy1 = imread("C:/b.bmp",0);
@@ -102,8 +106,7 @@ int main()
     dims[0] = height;
     dims[1] = width;
     imgbytes = srimg.data; //指向原图像数据域
-    numSuperpixels = 3000; //**超像素个数,适用于demo
-    compactness = 10; //**紧凑度
+
     
 
     //convert from rgb to lab
@@ -163,7 +166,7 @@ int main()
 	
 	/****************************************/
 	//构建层次树
-	createHierarchicalTree(mAhgn, hierarchicalTree, srimg, 200, finalNumberOfLabels);
+	createHierarchicalTree(mAhgn, hierarchicalTree, srimg, maxDiffence, finalNumberOfLabels);
 	/***************************************/
 
 	//后处理
@@ -219,7 +222,47 @@ int main()
 		printf("vk = %lf", vk);
 		printf("\n *******************************************\n");
 
+		//计算MI
+		double x_meancolor = 0;
+		double sumB = 0, sumG = 0, sumR = 0;
+		for (int i = 0;i<size.height;i++)
+			for (int j = 0; j<size.width; j++)
+			{
+				sumB += srimg.data[(i*size.width+j)*4];
+				sumG += srimg.data[(i*size.width+j)*4+1];
+				sumR += srimg.data[(i*size.width+j)*4+2];
+			}
+		x_meancolor = (sumB + sumG +sumR)/(3*(size.height*size.width));
 
+		int N = 0, sumWij = 0;
+		N = objectNum;
+
+		
+		for(int i = 0; i<objectNum; i++)
+			oNode[i].spectralFeatureInit();  //初始化光谱信息
+
+		double sumXijmean = 0, sumXii = 0;
+
+		for (int i = 0; i<objectNum; i++)
+		{
+			forward_list<GraphNode>::iterator it;
+			for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
+			{
+				sumWij++; //邻接计数
+				sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
+			}
+		}
+		
+		for (int i = 0; i<objectNum; i++)
+		{
+			sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
+		}
+
+		double MI = 0;
+		MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
+		printf("\n *******************************************\n");
+		printf("MI = %lf", MI);
+		printf("\n *******************************************\n");
 
 		//融合效果展示
 		Mat imgMerge = srimg.clone();

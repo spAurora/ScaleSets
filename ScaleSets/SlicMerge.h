@@ -475,9 +475,9 @@ void traversalAndMerge(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree,int
 
 //创建层次树
 //图头结点数组、层次树数组、原图像、分层数、超像素数
-void createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree, cv::Mat& srimg, double maxDifference,int superPixelnum)
+int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree, cv::Mat& srimg, double maxDifference,int superPixelnum)
 {
-	int levelindex = 510;  //*临时*
+	int levelindex = 510;  //*临时* 用于控制步长
 	int nowLevel = 1;
 	bool NodeMerge = false;
 	double allowDifference = 0; //允许的异质性差异
@@ -520,6 +520,10 @@ void createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTre
 				printf("没有发生融合...\n\n");
 		} while (NodeMerge == true);
 
+
+		
 		printf("处理下一等级.....\n");
 	}
+	printf("***************\n nowlevel = %d\n*****************\n", nowLevel);
+	return nowLevel;
 }

@@ -8,6 +8,7 @@
 #include <forward_list>
 #include <cmath>
 #include <time.h>
+#include <string.h>
 #include "highgui.h"
 #include "cv.h"
 
@@ -44,10 +45,12 @@ int main()
     int numSuperpixels = 200;//default value
     double compactness = 10;//default value
 	double maxDiffence = 200;//default value
+	bool openShowMergeImg = false;
 	
 	numSuperpixels = 3000; //**超像素个数,适用于demo
     compactness = 10; //**紧凑度
-	maxDiffence = 20; //**允许的最大异质性数值
+	maxDiffence = 30; //**允许的最大异质性数值
+	openShowMergeImg = false; //**是否开启展示融合效果  开启后可以定向查看每一个层级的融合效果，关闭则导出每个层级的信息
 
 	Mat zy1, zy2, zy3, zy4, srimg;
 	zy1 = imread("C:/b.bmp",0);
@@ -166,165 +169,313 @@ int main()
 	
 	/****************************************/
 	//构建层次树
-	createHierarchicalTree(mAhgn, hierarchicalTree, srimg, maxDiffence, finalNumberOfLabels);
+	int totalLevel = 0;
+	totalLevel = createHierarchicalTree(mAhgn, hierarchicalTree, srimg, maxDiffence, finalNumberOfLabels);
+	totalLevel -= 1;   //debug状态下显示部分节点信息，最高层只有一个节点，会报错
 	/***************************************/
+
+	//准备开启文件读写
+	FILE *fp1, *fp2, *fp3;
+	if((fp1 = fopen("vk.txt", "w+")) == NULL)
+	{
+		printf("打开vk记录文件失败\n");
+		waitKey(0);
+		exit(-1);
+	}
+	if((fp2 = fopen("MI.txt", "w+")) == NULL)
+	{
+		printf("打开MI记录文件失败\n");
+		waitKey(0);
+		exit(-1);
+	}
+	if((fp3 = fopen("Info.txt", "w+")) == NULL)
+	{
+		printf("打开Info记录文件失败\n");
+		waitKey(0);
+		exit(-1);
+	}
 
 	//后处理
 	int level;
 	int *newLabels = new int[height*width] ();
-	do{
-		printf("\n\n请输入查询结点等级:");
-		scanf("%d", &level);
-		//searchTreeNodeWithLevel(&hierarchicalTree[2*finalNumberOfLabels-2], level, finalNumberOfLabels);
-		int setValue = -1;
-		setAllNodeValue(newLabels, level, &hierarchicalTree[2*finalNumberOfLabels-2], setValue, csps);
-		
 
 
-		printf("objectNum: %d\n", setValue+1);
-		
-		//放弃层次树结点中的其它信息，只保留层次信息
-		//基于新联通图层建立新对象面块集合以及拓扑关系信息
-		int objectNum = setValue + 1;
-		ObjectNode* oNode = new ObjectNode[objectNum];
-		ArrayHeadGraphNode *newAHGn = new ArrayHeadGraphNode[objectNum];
-		createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
-		createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum,oNode);
-
-		//展示部分对象信息
-		for (int i = 0; i< 10; i++)
-			oNode[i].showInformation();
-
-		//19-10-20
-		//计算对象序列属性
-		//计算vk
-		double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
-
-		for (int i = 0; i<objectNum; i++)
+	if (openShowMergeImg == false) // 不开启展示融合效果，只计算vk和MI序列
+	{
+		for (int kk = 1; kk<totalLevel - 1; kk++) //输出最后一个层级信息的时候有bug，暂且输出到倒数第二层
 		{
-			double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
-			double tempSqr = 0, sumSqr = 0;
-			/*光谱标准差以蓝绿红三个取平均为准*/
-			for (int j = 0; j<oNode[i].pixelLocation.size(); j++)
-			{
-				tempBsqr = (srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB)*(srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB);
-				tempGsqr = (srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG)*(srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG);
-				tempRsqr = (srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR)*(srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR);
-				tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
-				sumSqr += tempSqr;
-			}
-			spectualStandDeviation = sqrt(sumSqr/oNode[i].pixelnum);
-			tempaq = oNode[i].pixelnum*(spectualStandDeviation); //面积乘以光谱标准差
-			sumaq += tempaq;
-		}
-		vk = sumaq/(width*height);
-		printf("\n *******************************************\n");
-		printf("vk = %lf", vk);
-		printf("\n *******************************************\n");
+			printf("\n计算结点等级=%d\n", kk);
 
-		//计算MI
-		double x_meancolor = 0;
-		double sumB = 0, sumG = 0, sumR = 0;
-		for (int i = 0;i<size.height;i++)
-			for (int j = 0; j<size.width; j++)
-			{
-				sumB += srimg.data[(i*size.width+j)*4];
-				sumG += srimg.data[(i*size.width+j)*4+1];
-				sumR += srimg.data[(i*size.width+j)*4+2];
-			}
-		x_meancolor = (sumB + sumG +sumR)/(3*(size.height*size.width));
-
-		int N = 0, sumWij = 0;
-		N = objectNum;
-
+			level = kk;
+			//searchTreeNodeWithLevel(&hierarchicalTree[2*finalNumberOfLabels-2], level, finalNumberOfLabels);
+			int setValue = -1;
+			setAllNodeValue(newLabels, level, &hierarchicalTree[2*finalNumberOfLabels-2], setValue, csps);
 		
-		for(int i = 0; i<objectNum; i++)
-			oNode[i].spectralFeatureInit();  //初始化光谱信息
 
-		double sumXijmean = 0, sumXii = 0;
 
-		for (int i = 0; i<objectNum; i++)
-		{
-			forward_list<GraphNode>::iterator it;
-			for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
-			{
-				sumWij++; //邻接计数
-				sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
-			}
-		}
+			printf("objectNum: %d\n", setValue+1);
 		
-		for (int i = 0; i<objectNum; i++)
-		{
-			sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
-		}
+			//放弃层次树结点中的其它信息，只保留层次信息
+			//基于新联通图层建立新对象面块集合以及拓扑关系信息
+			int objectNum = setValue + 1;
+			ObjectNode* oNode = new ObjectNode[objectNum];
+			ArrayHeadGraphNode *newAHGn = new ArrayHeadGraphNode[objectNum];
+			createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
+			createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum,oNode);
 
-		double MI = 0;
-		MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
-		printf("\n *******************************************\n");
-		printf("MI = %lf", MI);
-		printf("\n *******************************************\n");
+			//展示部分对象信息
+			for (int i = 0; i< 1; i++)
+				oNode[i].showInformation();
 
-		//融合效果展示
-		Mat imgMerge = srimg.clone();
-		for (int i = 1; i<height-1; i++)
-			for (int j = 1;j<width-1; j++)
+			//19-10-20
+			//计算对象序列属性
+			//计算vk
+			double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
+
+			for (int i = 0; i<objectNum; i++)
 			{
-				//不考虑图像边缘
-				if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+				double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
+				double tempSqr = 0, sumSqr = 0;
+				/*光谱标准差以蓝绿红三个取平均为准*/
+				for (int j = 0; j<oNode[i].pixelLocation.size(); j++)
 				{
-					if (oNode[newLabels[i*width + j]].haveInit == 0)
-					{
-						oNode[newLabels[i*width + j]].formFeatureInit(width);
-						oNode[newLabels[i*width + j]].spectralFeatureInit();
-						oNode[newLabels[i*width + j]].haveInit = 1;
-					}
-					if (oNode[newLabels[i*width+j]].objectTypes == 1)
-					{
-						imgMerge.data[(i*width+j)*4] = 255;
-						imgMerge.data[(i*width+j)*4+1] = 0;
-						imgMerge.data[(i*width+j)*4+2] = 0;
-						imgMerge.data[(i*width+j)*4+3] = 0;
-					}
-					else
-					{
-						imgMerge.data[(i*width+j)*4] = 0;
-						imgMerge.data[(i*width+j)*4+1] = 0;
-						imgMerge.data[(i*width+j)*4+2] = 255;
-						imgMerge.data[(i*width+j)*4+3] = 0;
-					}
-				}	
+					tempBsqr = (srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB)*(srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB);
+					tempGsqr = (srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG)*(srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG);
+					tempRsqr = (srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR)*(srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR);
+					tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
+					sumSqr += tempSqr;
+				}
+				spectualStandDeviation = sqrt(sumSqr/oNode[i].pixelnum);
+				tempaq = oNode[i].pixelnum*(spectualStandDeviation); //面积乘以光谱标准差
+				sumaq += tempaq;
+			}
+			vk = sumaq/(width*height);
+			printf("\n *******************************************\n");
+			printf("vk = %lf", vk);
+			printf("\n *******************************************\n");
+
+			//计算MI
+			double x_meancolor = 0;
+			double sumB = 0, sumG = 0, sumR = 0;
+			for (int i = 0;i<size.height;i++)
+				for (int j = 0; j<size.width; j++)
+				{
+					sumB += srimg.data[(i*size.width+j)*4];
+					sumG += srimg.data[(i*size.width+j)*4+1];
+					sumR += srimg.data[(i*size.width+j)*4+2];
+				}
+			x_meancolor = (sumB + sumG +sumR)/(3*(size.height*size.width));
+
+			int N = 0, sumWij = 0;
+			N = objectNum;
+
+		
+			for(int i = 0; i<objectNum; i++)
+				oNode[i].spectralFeatureInit();  //初始化光谱信息
+
+			double sumXijmean = 0, sumXii = 0;
+
+			for (int i = 0; i<objectNum; i++)
+			{
+				forward_list<GraphNode>::iterator it;
+				for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
+				{
+					sumWij++; //邻接计数
+					sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
+				}
+			}
+		
+			for (int i = 0; i<objectNum; i++)
+			{
+				sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
 			}
 
-			imwrite("out.jpg",imgMerge);
-			namedWindow("Superpixel");
-			imshow("Superpixel", imgMerge);
-			waitKey(0);
+			double MI = 0;
+			MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
+			printf("\n *******************************************\n");
+			printf("MI = %lf", MI);
+			printf("\n *******************************************\n");
 
 
-	}while(1);
+			//向文件输出vk和MI
+			fprintf(fp1, "%lf\n", vk);
+			fprintf(fp2, "%lf\n", MI);
+			fprintf(fp3, "%d %d %lf %lf\n", kk, objectNum, vk, MI);
 
-
-	//超像素分割效果
-	Mat imgSuperpixel = srimg.clone();
-	for (int i = 1; i<height-1; i++)
-		for (int j = 1;j<width-1; j++)
-		{
-			//不考虑图像边缘
-			if (clabels[i*width + j] != clabels[(i-1)*width +j] || clabels[i*width + j] != clabels[(i+1)*width +j] || clabels[i*width + j] != clabels[i*width +j+1] || clabels[i*width + j] != clabels[i*width + j-1])
+			Mat imgMerge = srimg.clone();
+			for (int i = 1; i<height-1; i++)
+				for (int j = 1;j<width-1; j++)
 				{
-					imgSuperpixel.data[(i*width+j)*4] = 0;
-					imgSuperpixel.data[(i*width+j)*4+1] = 0;
-					imgSuperpixel.data[(i*width+j)*4+2] = 255;
-					imgSuperpixel.data[(i*width+j)*4+3] = 0;
-				}	
+					//不考虑图像边缘
+					if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+					{
+						if (oNode[newLabels[i*width + j]].haveInit == 0)
+						{
+							oNode[newLabels[i*width + j]].formFeatureInit(width);
+							oNode[newLabels[i*width + j]].spectralFeatureInit();
+							oNode[newLabels[i*width + j]].haveInit = 1;
+						}
+						if (oNode[newLabels[i*width+j]].objectTypes == 1)
+						{
+							imgMerge.data[(i*width+j)*4] = 255;
+							imgMerge.data[(i*width+j)*4+1] = 0;
+							imgMerge.data[(i*width+j)*4+2] = 0;
+							imgMerge.data[(i*width+j)*4+3] = 0;
+						}
+						else
+						{
+							imgMerge.data[(i*width+j)*4] = 0;
+							imgMerge.data[(i*width+j)*4+1] = 0;
+							imgMerge.data[(i*width+j)*4+2] = 255;
+							imgMerge.data[(i*width+j)*4+3] = 0;
+						}
+					}	
+				}
+			//输出图像
+				char str[80];
+				vector<int> compression_params;
+				compression_params.push_back(CV_IMWRITE_JPEG_QUALITY);
+				compression_params.push_back(100); //以最高清晰度输出
+				sprintf(str, "out_%d_.jpg", kk);
+				imwrite(str, imgMerge, compression_params);
 		}
+	}
+	else //开启融合效果展示
+	{
+		do
+		{
+			printf("\n\n请输入查询结点等级:");
+			scanf("%d", &level);
+			//searchTreeNodeWithLevel(&hierarchicalTree[2*finalNumberOfLabels-2], level, finalNumberOfLabels);
+			int setValue = -1;
+			setAllNodeValue(newLabels, level, &hierarchicalTree[2*finalNumberOfLabels-2], setValue, csps);
 
-	namedWindow("Superpixel");
-	imshow("Superpixel", imgSuperpixel);
-	waitKey(0);
-	//cvCopy(srimg,Imgfinal,NULL);
 
 
+			printf("objectNum: %d\n", setValue+1);
+
+			//放弃层次树结点中的其它信息，只保留层次信息
+			//基于新联通图层建立新对象面块集合以及拓扑关系信息
+			int objectNum = setValue + 1;
+			ObjectNode* oNode = new ObjectNode[objectNum];
+			ArrayHeadGraphNode *newAHGn = new ArrayHeadGraphNode[objectNum];
+			createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
+			createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum,oNode);
+
+			//展示部分对象信息
+			for (int i = 0; i< 1; i++)
+				oNode[i].showInformation();
+
+			//19-10-20
+			//计算对象序列属性
+			//计算vk
+			double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
+
+			for (int i = 0; i<objectNum; i++)
+			{
+				double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
+				double tempSqr = 0, sumSqr = 0;
+				/*光谱标准差以蓝绿红三个取平均为准*/
+				for (int j = 0; j<oNode[i].pixelLocation.size(); j++)
+				{
+					tempBsqr = (srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB)*(srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB);
+					tempGsqr = (srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG)*(srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG);
+					tempRsqr = (srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR)*(srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR);
+					tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
+					sumSqr += tempSqr;
+				}
+				spectualStandDeviation = sqrt(sumSqr/oNode[i].pixelnum);
+				tempaq = oNode[i].pixelnum*(spectualStandDeviation); //面积乘以光谱标准差
+				sumaq += tempaq;
+			}
+			vk = sumaq/(width*height);
+			printf("\n *******************************************\n");
+			printf("vk = %lf", vk);
+			printf("\n *******************************************\n");
+
+			//计算MI
+			double x_meancolor = 0;
+			double sumB = 0, sumG = 0, sumR = 0;
+			for (int i = 0;i<size.height;i++)
+				for (int j = 0; j<size.width; j++)
+				{
+					sumB += srimg.data[(i*size.width+j)*4];
+					sumG += srimg.data[(i*size.width+j)*4+1];
+					sumR += srimg.data[(i*size.width+j)*4+2];
+				}
+				x_meancolor = (sumB + sumG +sumR)/(3*(size.height*size.width));
+
+				int N = 0, sumWij = 0;
+				N = objectNum;
+
+
+				for(int i = 0; i<objectNum; i++)
+					oNode[i].spectralFeatureInit();  //初始化光谱信息
+
+				double sumXijmean = 0, sumXii = 0;
+
+				for (int i = 0; i<objectNum; i++)
+				{
+					forward_list<GraphNode>::iterator it;
+					for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
+					{
+						sumWij++; //邻接计数
+						sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
+					}
+				}
+
+				for (int i = 0; i<objectNum; i++)
+				{
+					sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
+				}
+
+				double MI = 0;
+				MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
+				printf("\n *******************************************\n");
+				printf("MI = %lf", MI);
+				printf("\n *******************************************\n");
+
+				//融合效果展示
+				Mat imgMerge = srimg.clone();
+				for (int i = 1; i<height-1; i++)
+					for (int j = 1;j<width-1; j++)
+					{
+						//不考虑图像边缘
+						if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+						{
+							if (oNode[newLabels[i*width + j]].haveInit == 0)
+							{
+								oNode[newLabels[i*width + j]].formFeatureInit(width);
+								oNode[newLabels[i*width + j]].spectralFeatureInit();
+								oNode[newLabels[i*width + j]].haveInit = 1;
+							}
+							if (oNode[newLabels[i*width+j]].objectTypes == 1)
+							{
+								imgMerge.data[(i*width+j)*4] = 255;
+								imgMerge.data[(i*width+j)*4+1] = 0;
+								imgMerge.data[(i*width+j)*4+2] = 0;
+								imgMerge.data[(i*width+j)*4+3] = 0;
+							}
+							else
+							{
+								imgMerge.data[(i*width+j)*4] = 0;
+								imgMerge.data[(i*width+j)*4+1] = 0;
+								imgMerge.data[(i*width+j)*4+2] = 255;
+								imgMerge.data[(i*width+j)*4+3] = 0;
+							}
+						}	
+					}
+
+					imwrite("out.jpg",imgMerge);
+					namedWindow("Superpixel");
+					imshow("Superpixel", imgMerge);
+					waitKey(0);
+		}while(1);
+	}
+
+	fclose(fp1);
+	fclose(fp2);
+	fclose(fp3);
 
     //Deallocate memory
     delete rin;

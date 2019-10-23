@@ -341,7 +341,8 @@ void createSuperPixelVector(int* label, int width, int height, CSuperPixelSet *c
 		csps[i].avgR /= csps[i].pixelnum;
 		csps[i].avgNIR /= csps[i].pixelnum;
 	}
-	printf("-----------\n %lf \n ----------", csps[100].avgB);
+
+	printf("-----------\n超像素属性检查：\n csps[10].avgB = %lf\n----------", csps[10].avgB);
 
 	for (int i = 0; i< superPixelNum; i++)
 	{
@@ -408,8 +409,10 @@ void createToplogicalGraph(int*clabels, int width, int height, ArrayHeadGraphNod
 		for (int i = 0; i<superPixelnum;i++)
 			mAhgn[i].pGraphNodeList.sort(cmp);
 		endTime = clock();
-		cout << "排序Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+		cout << "\n邻接表排序用时： " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 		
+		printf("-----------\n");
+		printf("邻接表检查：\n");
 		forward_list<GraphNode>::iterator it;
 		for (it = mAhgn[30].pGraphNodeList.begin(); it!= mAhgn[30].pGraphNodeList.end(); it++)
 			printf("%d -> ", it->ID);
@@ -420,6 +423,7 @@ void createToplogicalGraph(int*clabels, int width, int height, ArrayHeadGraphNod
 		for (it = mAhgn[1024].pGraphNodeList.begin(); it!= mAhgn[1024].pGraphNodeList.end(); it++)
 			printf("%d -> ", it->ID);
 		printf("\n");
+		printf("-----------\n");
 }
 
 //计算光谱差
@@ -437,12 +441,9 @@ bool whetherThisValueInTheOtherSet(GraphNode mNode, forward_list<GraphNode> list
 	for (it = list.begin(); it != list.end(); it++)
 		if (it->ID == mNode.ID)
 		{
-			//endTime = clock();
 			//printf("检查重复占用的ms:%ld\n", startTime-endTime);
 			return true;
 		}
-	//endTime = clock();
-	//printf("检查重复占用的ms:%ld\n", startTime-endTime);
 	return false;
 }
 
@@ -539,37 +540,25 @@ void calculateUnion(int childNodeLoc_1, int childNodeLoc_2, int graphAndTreeEnd,
 	startTime = clock();
 	forward_list<GraphNode>::iterator itt;
 	itt = mAhgn[1].pGraphNodeList.begin();
-	//printf("WTF %d\n", itt->ID);
 	for (itt = mAhgn[childNodeLoc_1].pGraphNodeList.begin(); itt!= mAhgn[childNodeLoc_1].pGraphNodeList.end(); itt++)
 	{
-		//printf("%d\n", itt->ID);
 		if (itt->ID != childNodeLoc_2)  //后面多了个分号，见鬼了
 		{
 			//printf("开始删除2结点\n");
-			//printf("清理结点ID:it->ID = %d\n", itt->ID);
 			delNode(mAhgn, itt->ID, childNodeLoc_1, childNodeLoc_2, graphAndTreeEnd);
 		}
 	}
 	//printf("结点1的邻接点清理完毕(不包括要融合的两个点)\n");
 	for (itt = mAhgn[childNodeLoc_2].pGraphNodeList.begin(); itt!= mAhgn[childNodeLoc_2].pGraphNodeList.end(); itt++)
 	{
-		//printf("%d\n", itt->ID);
 		if (itt->ID != childNodeLoc_1)
 		{
 			//printf("开始删除2结点\n");
-			//printf("清理结点ID:it->ID = %d\n", itt->ID);
 			delNode(mAhgn, itt->ID, childNodeLoc_1, childNodeLoc_2, graphAndTreeEnd);
 		}
 	}
 	endTime = clock();
 	cout << "取并集part2:Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
-	//printf("结点2的邻接点清理完毕(不包括要融合的两个点)\n");
-	/*for (itt = mAhgn[childNodeLoc_2].pGraphNodeList.begin(); itt!= mAhgn[childNodeLoc_2].pGraphNodeList.end(); itt++)
-		if (itt->ID != childNodeLoc_1);
-		{
-			delNode(mAhgn, itt->ID, childNodeLoc_1, childNodeLoc_2, graphAndTreeEnd);
-			printf("开始删除2结点\n");
-		}*/
 }
 
 //递归深搜
@@ -586,7 +575,6 @@ void DFS(int location,int *vnum, ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchic
 		return;
 	mDepth++;
 	vnum[location] = 1;
-	//printf("%d\n", location);
 	//------ 融合
 	clock_t startTime,endTime; 
 	
@@ -610,10 +598,8 @@ void DFS(int location,int *vnum, ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchic
 				calculateUnion(location, mit->ID, graphAndTreeEnd, mAhgn, hierarchicalTree); //拓扑图取并集********
 				endTime = clock();
 				cout << "取并集Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
-				//printf("扩展到的下标：%d\n", graphAndTreeEnd);
 				
-				//mAhgn[mit->ID].hadRemove = true;
-				//mAhgn[location].hadRemove = true;
+
 				//写入新树结点数据
 				hierarchicalTree[graphAndTreeEnd].left = &hierarchicalTree[mit->ID];
 				hierarchicalTree[graphAndTreeEnd].right = &hierarchicalTree[location];
@@ -638,25 +624,12 @@ void DFS(int location,int *vnum, ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchic
 		}
 	
 	//------
-	//printf("\n当前结点与周边所有邻接的好像都没法融合，进行下一步(递归):\n**************************************\n");
-	//forward_list<GraphNode>::iterator itt;
-	//itt = mAhgn[1].pGraphNodeList.begin();
-	////printf("WTF %d\n", itt->ID);
-	//for (itt = mAhgn[childNodeLoc_1].pGraphNodeList.begin(); itt!= mAhgn[childNodeLoc_1].pGraphNodeList.end(); itt++)
 	forward_list<GraphNode>::iterator itp;
 	itp = mAhgn[0].pGraphNodeList.begin();
-	//printf("WTF %d\n", itp->ID);
-	//for(it = mAhgn[location].pGraphNodeList.begin(); it!= mAhgn[location].pGraphNodeList.end(); it++)
-	//for(itp = mAhgn[location].pGraphNodeList.begin(); itp != mAhgn[location].pGraphNodeList.end(); itp++)
-	//{
-		//printf("FUCK %d\n", itp->ID);
-	//}
 
 
 	for(itp = mAhgn[location].pGraphNodeList.begin(); itp != mAhgn[location].pGraphNodeList.end(); itp++)    //mAhgn的链表容器会发生变化，进而使得迭代器失效！！！！！！！！
 	{
-		
-		//printf("进来了没？\n");
 		//printf("it ID:%d,  vnum[it->ID]:%d,   mAhgn.hadRemove:%d\n", itp->ID, vnum[itp->ID], mAhgn[itp->ID].hadRemove);
 		if (vnum[itp->ID] == 0 && mAhgn[itp->ID].hadRemove == false)
 		{	int temp;
@@ -724,6 +697,128 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		exit(-1);
 	}
 
+	//计算VKfirst、MIfirst
+	/*基于初始分割图计算VKfirst和MIfirst*/
+	double VK_first = 0, MI_first = 0;
+
+	int *newLabels = new int[height*width] ();
+	int setvalue = -1;
+
+	for(int i = 0; i <= graphAndTreeEnd; i++) //set all node value
+	{
+		if (mAhgn[i].hadRemove != true)  // 如果该节点并参与融合
+		{
+			setvalue++;
+			setNowLevelNodeValue_InSlicMerge(newLabels, setvalue, &hierarchicalTree[i], csps);
+		}
+	}
+	int objectNum = setvalue + 1;
+	ObjectNode* oNode = new ObjectNode[objectNum];
+	ArrayHeadGraphNode *newAHGn = new ArrayHeadGraphNode[objectNum];
+	createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
+	createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum, oNode);
+	double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
+
+	for (int i = 0; i<objectNum; i++)
+	{
+		double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
+		double tempSqr = 0, sumSqr = 0;
+		/*光谱标准差以蓝绿红三个取平均为准*/
+		for (int j = 0; j<oNode[i].pixelLocation.size(); j++)
+		{
+			tempBsqr = (srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB)*(srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB);
+			tempGsqr = (srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG)*(srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG);
+			tempRsqr = (srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR)*(srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR);
+			tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
+			sumSqr += tempSqr;
+		}
+		spectualStandDeviation = sqrt(sumSqr/oNode[i].pixelnum);
+		tempaq = oNode[i].pixelnum*(spectualStandDeviation); //面积乘以光谱标准差
+		sumaq += tempaq;
+	}
+	vk = sumaq/(width*height);
+	VK_first = vk;
+
+	double x_meancolor = 0;
+	double sumB = 0, sumG = 0, sumR = 0;
+	for (int i = 0;i<height;i++)
+		for (int j = 0; j<width; j++)
+		{
+			sumB += srimg.data[(i*width+j)*4];
+			sumG += srimg.data[(i*width+j)*4+1];
+			sumR += srimg.data[(i*width+j)*4+2];
+		}
+		x_meancolor = (sumB + sumG +sumR)/(3*(height*width));
+
+		int N = 0, sumWij = 0;
+		N = objectNum;
+
+
+	for(int i = 0; i<objectNum; i++)
+		oNode[i].spectralFeatureInit();  //初始化光谱信息
+
+	double sumXijmean = 0, sumXii = 0;
+
+	for (int i = 0; i<objectNum; i++)
+	{
+		forward_list<GraphNode>::iterator it;
+		for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
+		{
+			sumWij++; //邻接计数
+			sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
+		}
+	}
+
+	for (int i = 0; i<objectNum; i++)
+	{
+		sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
+	}
+	MI_first = ((N*sumXijmean)/2) / (sumWij*sumXii);
+
+	/*基于完整图像计算VKfinal。MIfinal需依公式自行设定，理论无解*/
+	double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
+	double tempSqr = 0, sumSqr = 0;
+	double VK_final = 0, MI_final = 0;
+
+	double avg_B = 0, avg_G = 0, avg_R = 0;
+	for (int i = 0;i<height;i++)
+		for (int j = 0; j<width; j++)
+		{
+			avg_B += srimg.data[(i*width+j)*4];
+			avg_G += srimg.data[(i*width+j)*4+1];
+			avg_R += srimg.data[(i*width+j)*4+2];
+		}
+		avg_B/=(width*height);  //计算BGR波段的全局均值
+		avg_G/=(width*height);
+		avg_R/=(width*height);
+
+	for (int i = 0; i<height; i++)
+		for (int j = 0;j<width; j++)
+		{
+			tempBsqr = (srimg.data[(i*width+j)*4] - avg_B)*(srimg.data[(i*width+j)*4] - avg_B);
+			tempGsqr = (srimg.data[(i*width+j)*4+1] - avg_G)*(srimg.data[(i*width+j)*4+1] - avg_G);
+			tempRsqr = (srimg.data[(i*width+j)*4+2] - avg_R)*(srimg.data[(i*width+j)*4+2] - avg_R);
+			tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
+		}
+	spectualStandDeviation = sqrt(sumSqr/(width*height));
+	VK_final = spectualStandDeviation;
+
+	MI_final = -0.03; //试验影像中，MI的最小值未小于-0.03过
+
+	//初始化VK和MI序列
+	vector<double> vk_list;
+	vector<double> MI_list;
+	//vk_list.insert(vk_list.begin(), VK_final);
+	//MI_list.insert(MI_list.begin(), MI_final);
+	vk_list.insert(vk_list.begin(), VK_first);
+	MI_list.insert(MI_list.begin(), MI_first);
+
+	//初始化objectNum序列
+	vector<int> objectNum_list;
+	//objectNum_list.insert(objectNum_list.begin(), 1);
+	objectNum_list.insert(objectNum_list.begin(), objectNum);
+
+	/*融合主部*/
 	for (int i = 1; i <= levelindex; i++)
 	{
 		nowLevel++;
@@ -746,8 +841,6 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		{	
 			NodeMerge = false;
 			//遍历并创建层次树
-			//printf("allDifference:%lf\n", allowDifference);
-			//system("pause");
 			clock_t startTime,endTime; 
 			startTime = clock();
 			/*************/
@@ -762,7 +855,6 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 
 		//*融合完成后计算当前层次的vk和MI，并在下一层依据vk和MI调整异质性步长*//
 
-		int level;
 		int *newLabels = new int[height*width] ();
 		int setvalue = -1;
 
@@ -776,6 +868,9 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		}
 		
 		int objectNum = setvalue + 1;
+
+		objectNum_list.insert(objectNum_list.end(), objectNum);   //将objectNum插入序列中
+
 		ObjectNode* oNode = new ObjectNode[objectNum];
 		ArrayHeadGraphNode *newAHGn = new ArrayHeadGraphNode[objectNum];
 		createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
@@ -804,6 +899,7 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		printf("\n *******************************************\n");
 		printf("vk = %lf", vk);
 		printf("\n *******************************************\n");
+		vk_list.insert(vk_list.end(), vk);  //将vk插入vk序列中
 
 		//计算MI
 		double x_meancolor = 0;
@@ -815,49 +911,55 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 				sumG += srimg.data[(i*width+j)*4+1];
 				sumR += srimg.data[(i*width+j)*4+2];
 			}
-			x_meancolor = (sumB + sumG +sumR)/(3*(height*width));
+		x_meancolor = (sumB + sumG +sumR)/(3*(height*width));
 
-			int N = 0, sumWij = 0;
-			N = objectNum;
+		int N = 0, sumWij = 0;
+		N = objectNum;
 
 
-			for(int i = 0; i<objectNum; i++)
-				oNode[i].spectralFeatureInit();  //初始化光谱信息
+		for(int i = 0; i<objectNum; i++)
+			oNode[i].spectralFeatureInit();  //初始化光谱信息
 
-			double sumXijmean = 0, sumXii = 0;
+		double sumXijmean = 0, sumXii = 0;
 
-			for (int i = 0; i<objectNum; i++)
+		for (int i = 0; i<objectNum; i++)
+		{
+			forward_list<GraphNode>::iterator it;
+			for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
 			{
-				forward_list<GraphNode>::iterator it;
-				for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
-				{
-					sumWij++; //邻接计数
-					sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
-				}
+				sumWij++; //邻接计数
+				sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
 			}
+		}
 
-			for (int i = 0; i<objectNum; i++)
-			{
-				sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
-			}
+		for (int i = 0; i<objectNum; i++)
+		{
+			sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
+		}
 
-			double MI = 0;
-			MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
-			printf("\n *******************************************\n");
-			printf("MI = %lf", MI);
-			printf("\n *******************************************\n");
-		
-		fprintf(fp, "%d %d %lf %lf\n", i, objectNum, vk, MI);
+		double MI = 0;
+		MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
+		printf("\n *******************************************\n");
+		printf("MI = %lf", MI);
+		printf("\n *******************************************\n");
+		MI_list.insert(MI_list.end(), MI);  //将MI插入序列中
+
+		//fprintf(fp, "%d %d %lf %lf\n", i, objectNum, vk, MI);
 
 		//释放内存
-		free(newLabels);
+		delete [] newLabels;
 		printf("释放newLabels成功\n");
-		//free(oNode);
-		//printf("释放oNode成功\n");
-		//free(newAHGn);
-		//printf("释放newAHGn成功\n");
+		delete [] oNode;
+		printf("释放oNode成功\n");
+		delete [] newAHGn;
+		printf("释放newAHGn成功\n");
 	}
-	printf("***************\n nowlevel = %d\n*****************\n", nowLevel);
+	printf("***************\n 尺度集序列总数 = %d\n*****************\n", nowLevel-1);
+
+	//输出所有序列信息到文件中
+	for (int i = 0; i<vk_list.size(); i++)
+		fprintf(fp, "%d %d %lf %lf\n", i+1, objectNum_list[i], vk_list[i], MI_list[i]);
+
 	fclose(fp);
 	return nowLevel;
 }

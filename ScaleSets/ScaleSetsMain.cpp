@@ -49,7 +49,7 @@ int main()
 	
 	numSuperpixels = 3000; //**超像素个数,适用于demo
     compactness = 10; //**紧凑度
-	maxDiffence = 5; //**允许的最大异质性数值
+	maxDiffence = 20; //**允许的最大异质性数值
 	openShowMergeImg = true; //**是否开启展示融合效果  开启后可以定向查看每一个层级的融合效果，关闭则导出每个层级的信息
 
 
@@ -143,7 +143,10 @@ int main()
     
     //output
     //clabels为连通矩阵 finalNumberOfLabels为超像素区域个数
-	printf("%d\n", finalNumberOfLabels);
+	printf("初始超像素数：%d\n", finalNumberOfLabels);
+	printf("-----------\n");
+
+	printf("初始连通图检查：\n");
 	for (int i = 0; i<20; i++)
 	{
 		for (int j = 0; j<9; j++)
@@ -165,7 +168,8 @@ int main()
 	createToplogicalGraph(clabels, width, height, mAhgn,numSuperpixels);
 
 
-	printf("\n最终层次树结点数：%d\n", 2*finalNumberOfLabels - 2);
+	printf("最终层次树结点数：%d\n", 2*finalNumberOfLabels - 1);
+	printf("-----------\n");
 	system("pause");
 	
 	/****************************************/
@@ -187,7 +191,6 @@ int main()
 			printf("\n计算结点等级=%d\n", kk);
 
 			level = kk;
-			//searchTreeNodeWithLevel(&hierarchicalTree[2*finalNumberOfLabels-2], level, finalNumberOfLabels);
 			int setValue = -1;
 			setAllNodeValue(newLabels, level, &hierarchicalTree[2*finalNumberOfLabels-2], setValue, csps);
 		

@@ -80,7 +80,6 @@
     <ClCompile Include="ScaleSetsMain.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HierarchicalTree.h" />
     <ClInclude Include="Slic.h" />
     <ClInclude Include="SlicMerge.h" />
   </ItemGroup>

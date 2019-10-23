@@ -1,6 +1,9 @@
 /*对象融合*/
 /*包括超像素实体类定义*/
+extern int width;
+extern int height;
 
+using namespace std;
 class CSuperPixelSet  //超像素实体类
 {
 public:
@@ -95,6 +98,222 @@ public:
 protected:
 private:
 };
+
+class ObjectNode : public CSuperPixelSet
+{
+public:
+	int objectTypes;  //地物类别
+	int haveInit;
+
+	//协方差矩阵
+	//形态学相关
+	double varxx;
+	double varyy;
+	double covxy;
+	int borderLength;
+	double shapeIndex;
+	double density;
+
+	//光谱相关
+	double brightnessBGRNIR;
+	double brightnessBGR;
+	double NDVI;
+	double NDWI;
+	double SBI;
+	double BAI;
+
+	ObjectNode()
+	{
+		borderLength = 0;
+		objectTypes = 0;//0未分类，1水体，2植被，3裸土，4建筑，5道路
+		haveInit = 0;
+	}
+
+	//成员函数
+
+	//展示信息
+	void showInformation()
+	{
+		this->formFeatureInit(width);
+		this->spectralFeatureInit();
+		printf("ID：%d\n", this->id);
+		printf("Area: %d\n", this->pixelnum);
+		printf("borderLength:%d\n", this->borderLength);
+		printf("shapeIndex: %lf\n", this->shapeIndex);
+		printf("density:%lf\n", this->density);
+		printf("brightnessBGRNIR:%lf\n", this->brightnessBGRNIR);
+		printf("brightnessBGR:%lf\n", this->brightnessBGR);
+		printf("NDVI:%lf\n", this->NDVI);
+		printf("NDWI:%lf\n", this->NDWI);
+		printf("BAI:%lf\n", this->BAI);
+		printf("SBI:%lf\n\n", this->SBI);
+
+	}
+
+	//初始化形态信息
+	//计算依赖协方差矩阵
+	void formFeatureInit(int width)
+	{
+		vector<int>::iterator it;
+		int sumx = 0;
+		int sumy = 0;
+		for(it = this->pixelLocation.begin(); it != this->pixelLocation.end(); it++)
+		{
+			sumx += (*it)/width;
+			sumy += (*it)%width;
+		}
+		double meanx = 0, meany = 0;
+		meanx = sumx/(double)this->pixelLocation.size();
+		meany = sumy/(double)this->pixelLocation.size();
+		double finx = 0, finy = 0, finxy = 0;
+		for(it = this->pixelLocation.begin(); it != this->pixelLocation.end(); it++)
+		{
+			finx += ((*it)/width - meanx)*((*it)/width - meanx);
+			finy += ((*it)%width - meany)*((*it)%width - meany);
+			finxy += ((*it)/width - meanx) * ((*it)%width - meany);
+		}
+		this->varxx = finx/(this->pixelLocation.size()-1);
+		this->varyy = finy/(this->pixelLocation.size()-1);
+		this->covxy = finxy/(this->pixelLocation.size()-1);
+
+		this->shapeIndex = (double)borderLength/(4*sqrt((double)this->pixelnum));
+		this->density = sqrt((double)this->pixelnum)/(1+sqrt(varxx+varyy));
+	}
+
+	//初始化光谱信息
+	void spectralFeatureInit()
+	{
+		this->NDVI = (this->avgNIR - this->avgR)/(double)(this->avgNIR + this->avgR);
+		this->NDWI = (this->avgG - this->avgNIR)/(double)(this->avgG + this->avgNIR);
+		this->brightnessBGRNIR = (this->avgB + this->avgG + this->avgR + this->avgNIR)/4;
+		this->brightnessBGR = (this->avgB + this->avgG + this->avgR)/3;
+		this->BAI = (this->avgB - this ->avgNIR)/(this->avgB + this->avgNIR);
+		this->SBI = sqrt(this->avgR*this->avgR + this->avgNIR*this->avgNIR);
+	}
+
+
+
+protected:
+private:
+};
+
+//遍历出某个等级的全部结点
+//从头结点开始，任何小于等于该等级的结点均为“该等级结点”
+void searchTreeNodeWithLevel(BTreeNode* hierarchicalTree, int level, int superPixelNum)
+{
+	if(hierarchicalTree->level <= level)
+		printf("%d -> ",hierarchicalTree->ID);
+	if(hierarchicalTree->level > level && hierarchicalTree->left != NULL)
+		searchTreeNodeWithLevel(hierarchicalTree->left, level, superPixelNum);
+	if(hierarchicalTree->level > level && hierarchicalTree->right != NULL)
+		searchTreeNodeWithLevel(hierarchicalTree->right, level, superPixelNum);
+};
+
+//设置某结点所有基层结点的子像素值
+void setNowLevelNodeValue(int *labels, int &setValue, BTreeNode* htNode, CSuperPixelSet* csps)
+{
+	if (htNode->level == 1)
+	{
+		vector<int>::iterator it;
+		for(it = csps[htNode->ID].pixelLocation.begin(); it != csps[htNode->ID].pixelLocation.end(); it++)
+			labels[*it] = setValue;
+	}
+	if(htNode->level > 1 && htNode->left != NULL)
+		setNowLevelNodeValue(labels, setValue, htNode->left, csps);
+	if(htNode->level > 1 && htNode->right != NULL)
+		setNowLevelNodeValue(labels, setValue, htNode->right, csps);
+}
+
+//遍历某等级下的所有结点
+void setAllNodeValue(int *labels, int level, BTreeNode* hierarchicalTree, int &setValue, CSuperPixelSet* csps)
+{
+	if(hierarchicalTree->level <= level)
+	{
+		setValue++;
+		setNowLevelNodeValue(labels, setValue, hierarchicalTree, csps);
+	}
+	if(hierarchicalTree->level > level && hierarchicalTree->left != NULL)
+		setAllNodeValue(labels, level, hierarchicalTree->left, setValue, csps);
+	if(hierarchicalTree->level > level && hierarchicalTree->right != NULL)
+		setAllNodeValue(labels, level, hierarchicalTree->right, setValue, csps);
+}
+
+//建立新对象结点集合
+void createNewObjectSet(int* newLabels, cv::Mat &srimg, ObjectNode* oNode, int objectNum, int width, int height)
+{
+	for (int i = 0;i<height;i++)
+		for (int j = 0;j<width;j++)
+		{
+			oNode[newLabels[i*width+j]].pixelLocation.push_back(i*width+j);  //建立超像素与其中像素的关系
+			oNode[newLabels[i*width+j]].pixelnum++;
+			oNode[newLabels[i*width+j]].avgB += srimg.data[(i*width+j)*4];
+			oNode[newLabels[i*width+j]].avgG += srimg.data[(i*width+j)*4+1];
+			oNode[newLabels[i*width+j]].avgR += srimg.data[(i*width+j)*4+2];
+			oNode[newLabels[i*width+j]].avgNIR += srimg.data[(i*width+j)*4+3];
+		}
+		for(int i = 0; i< objectNum;i++)
+		{
+			oNode[i].avgB /= oNode[i].pixelnum;
+			oNode[i].avgG /= oNode[i].pixelnum;
+			oNode[i].avgR /= oNode[i].pixelnum;
+			oNode[i].avgNIR /= oNode[i].pixelnum;
+			oNode[i].id = i;
+			oNode[i].objectTypes = 0; //定义地物类为未定义
+			//oNode[i].formFeatureInit(width);
+		}
+}
+
+//建立新的邻接图
+//同时计算各个对象边长
+void createNewToplogicalGraph(int *newLabels, int width, int height, ArrayHeadGraphNode* newAHGn, int objectNum, ObjectNode* oNode)
+{
+	for (int i = 0; i<height; i++)
+		oNode[newLabels[i*width+width-1]].borderLength++;
+	for(int j = 0; j<width-1; j++)
+		oNode[newLabels[(height-1)*width+j]].borderLength++;
+	for (int i = 0; i<height - 1; i++)
+		for (int j = 0; j < width - 1; j++)
+		{
+			if(i == 0 || j == 0)
+				oNode[newLabels[i*width+j]].borderLength++;
+			if (newLabels[i*width + j] != newLabels[i*width + j + 1])
+			{
+				oNode[newLabels[i*width+j]].borderLength++;
+				forward_list<GraphNode>::iterator it;
+				int check = 0; //0为不存在
+				for (it = newAHGn[newLabels[i*width + j]].pGraphNodeList.begin(); it != newAHGn[newLabels[i*width + j]].pGraphNodeList.end(); it++)
+					if (it->ID == newLabels[i*width+j+1])
+					{
+						check = 1;
+						break;
+					}
+					if(check == 0)
+					{
+						newAHGn[newLabels[i*width + j]].pGraphNodeList.push_front(newLabels[i*width + j + 1]);
+						newAHGn[newLabels[i*width + j + 1]].pGraphNodeList.push_front(newLabels[i*width + j]);
+					}
+			}
+
+			if (newLabels[i*width + j] != newLabels[(i+1)*width+j])
+			{
+				oNode[newLabels[i*width+j]].borderLength++;
+				forward_list<GraphNode>::iterator it;
+				int check = 0; //0为不存在
+				for (it = newAHGn[newLabels[i*width + j]].pGraphNodeList.begin(); it != newAHGn[newLabels[i*width + j]].pGraphNodeList.end(); it++)
+					if (it->ID == newLabels[(i+1)*width+j])
+					{
+						check = 1;
+						break;
+					}
+					if(check == 0)
+					{
+						newAHGn[newLabels[i*width + j]].pGraphNodeList.push_front(newLabels[(i+1)*width+j]);
+						newAHGn[newLabels[(i+1)*width+j]].pGraphNodeList.push_front(newLabels[i*width + j]);
+					}
+			}
+		}
+}
+
 
 
 
@@ -472,10 +691,24 @@ void traversalAndMerge(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree,int
 	delete vnum;
 }
 
+//设置某结点所有基层结点的子像素值
+void setNowLevelNodeValue_InSlicMerge(int *labels, int &setValue, BTreeNode* htNode, CSuperPixelSet* csps)
+{
+	if (htNode->level == 1)
+	{
+		vector<int>::iterator it;
+		for(it = csps[htNode->ID].pixelLocation.begin(); it != csps[htNode->ID].pixelLocation.end(); it++)
+			labels[*it] = setValue;
+	}
+	if(htNode->level > 1 && htNode->left != NULL)
+		setNowLevelNodeValue_InSlicMerge(labels, setValue, htNode->left, csps);
+	if(htNode->level > 1 && htNode->right != NULL)
+		setNowLevelNodeValue_InSlicMerge(labels, setValue, htNode->right, csps);
+}
 
 //创建层次树
 //图头结点数组、层次树数组、原图像、分层数、超像素数
-int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree, cv::Mat& srimg, double maxDifference,int superPixelnum)
+int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree, cv::Mat& srimg, double maxDifference,int superPixelnum,CSuperPixelSet* csps)
 {
 	int levelindex = 510;  //*临时* 用于控制步长
 	int nowLevel = 1;
@@ -483,6 +716,13 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	double allowDifference = 0; //允许的异质性差异
 	int graphAndTreeEnd = superPixelnum - 1;
 	bool overDifferenceLimit = false;
+
+	FILE *fp;
+	if((fp = fopen("Info.txt", "w+")) == NULL)
+	{
+		printf("打开Info记录文件失败\n");
+		exit(-1);
+	}
 
 	for (int i = 1; i <= levelindex; i++)
 	{
@@ -517,13 +757,107 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 			endTime = clock();
 			cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 			if (NodeMerge == false)
-				printf("没有发生融合...\n\n");
+				printf("完成当前异质性阈值下所有融合...\n\n");
 		} while (NodeMerge == true);
 
+		//*融合完成后计算当前层次的vk和MI，并在下一层依据vk和MI调整异质性步长*//
 
+		int level;
+		int *newLabels = new int[height*width] ();
+		int setvalue = -1;
+
+		for(int i = 0; i <= graphAndTreeEnd; i++) //set all node value
+		{
+			if (mAhgn[i].hadRemove != true)  // 如果该节点并参与融合
+			{
+				setvalue++;
+				setNowLevelNodeValue_InSlicMerge(newLabels, setvalue, &hierarchicalTree[i], csps);
+			}
+		}
 		
-		printf("处理下一等级.....\n");
+		int objectNum = setvalue + 1;
+		ObjectNode* oNode = new ObjectNode[objectNum];
+		ArrayHeadGraphNode *newAHGn = new ArrayHeadGraphNode[objectNum];
+		createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
+		createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum, oNode);
+
+		double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
+
+		for (int i = 0; i<objectNum; i++)
+		{
+			double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
+			double tempSqr = 0, sumSqr = 0;
+			/*光谱标准差以蓝绿红三个取平均为准*/
+			for (int j = 0; j<oNode[i].pixelLocation.size(); j++)
+			{
+				tempBsqr = (srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB)*(srimg.data[oNode[i].pixelLocation[j]*4] - oNode[i].avgB);
+				tempGsqr = (srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG)*(srimg.data[oNode[i].pixelLocation[j]*4+1] - oNode[i].avgG);
+				tempRsqr = (srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR)*(srimg.data[oNode[i].pixelLocation[j]*4+2] - oNode[i].avgR);
+				tempSqr = (tempBsqr + tempGsqr + tempRsqr)/3;
+				sumSqr += tempSqr;
+			}
+			spectualStandDeviation = sqrt(sumSqr/oNode[i].pixelnum);
+			tempaq = oNode[i].pixelnum*(spectualStandDeviation); //面积乘以光谱标准差
+			sumaq += tempaq;
+		}
+		vk = sumaq/(width*height);
+		printf("\n *******************************************\n");
+		printf("vk = %lf", vk);
+		printf("\n *******************************************\n");
+
+		//计算MI
+		double x_meancolor = 0;
+		double sumB = 0, sumG = 0, sumR = 0;
+		for (int i = 0;i<height;i++)
+			for (int j = 0; j<width; j++)
+			{
+				sumB += srimg.data[(i*width+j)*4];
+				sumG += srimg.data[(i*width+j)*4+1];
+				sumR += srimg.data[(i*width+j)*4+2];
+			}
+			x_meancolor = (sumB + sumG +sumR)/(3*(height*width));
+
+			int N = 0, sumWij = 0;
+			N = objectNum;
+
+
+			for(int i = 0; i<objectNum; i++)
+				oNode[i].spectralFeatureInit();  //初始化光谱信息
+
+			double sumXijmean = 0, sumXii = 0;
+
+			for (int i = 0; i<objectNum; i++)
+			{
+				forward_list<GraphNode>::iterator it;
+				for (it = newAHGn[i].pGraphNodeList.begin(); it != newAHGn[i].pGraphNodeList.end(); it++)
+				{
+					sumWij++; //邻接计数
+					sumXijmean += (oNode[i].brightnessBGR - x_meancolor) * (oNode[it->ID].brightnessBGR - x_meancolor);
+				}
+			}
+
+			for (int i = 0; i<objectNum; i++)
+			{
+				sumXii += (oNode[i].brightnessBGR - x_meancolor)*(oNode[i].brightnessBGR - x_meancolor);
+			}
+
+			double MI = 0;
+			MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
+			printf("\n *******************************************\n");
+			printf("MI = %lf", MI);
+			printf("\n *******************************************\n");
+		
+		fprintf(fp, "%d %d %lf %lf\n", i, objectNum, vk, MI);
+
+		//释放内存
+		free(newLabels);
+		printf("释放newLabels成功\n");
+		//free(oNode);
+		//printf("释放oNode成功\n");
+		//free(newAHGn);
+		//printf("释放newAHGn成功\n");
 	}
 	printf("***************\n nowlevel = %d\n*****************\n", nowLevel);
+	fclose(fp);
 	return nowLevel;
 }

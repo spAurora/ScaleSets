@@ -14,7 +14,7 @@
 
 #include "Slic.h"
 #include "SlicMerge.h"
-#include "HierarchicalTree.h"
+//#include "HierarchicalTree.h"
 
 using namespace cv;
 
@@ -49,8 +49,9 @@ int main()
 	
 	numSuperpixels = 3000; //**超像素个数,适用于demo
     compactness = 10; //**紧凑度
-	maxDiffence = 30; //**允许的最大异质性数值
-	openShowMergeImg = false; //**是否开启展示融合效果  开启后可以定向查看每一个层级的融合效果，关闭则导出每个层级的信息
+	maxDiffence = 5; //**允许的最大异质性数值
+	openShowMergeImg = true; //**是否开启展示融合效果  开启后可以定向查看每一个层级的融合效果，关闭则导出每个层级的信息
+
 
 	Mat zy1, zy2, zy3, zy4, srimg;
 	zy1 = imread("C:/b.bmp",0);
@@ -170,30 +171,9 @@ int main()
 	/****************************************/
 	//构建层次树
 	int totalLevel = 0;
-	totalLevel = createHierarchicalTree(mAhgn, hierarchicalTree, srimg, maxDiffence, finalNumberOfLabels);
+	totalLevel = createHierarchicalTree(mAhgn, hierarchicalTree, srimg, maxDiffence, finalNumberOfLabels, csps);
 	totalLevel -= 1;   //debug状态下显示部分节点信息，最高层只有一个节点，会报错
 	/***************************************/
-
-	//准备开启文件读写
-	FILE *fp1, *fp2, *fp3;
-	if((fp1 = fopen("vk.txt", "w+")) == NULL)
-	{
-		printf("打开vk记录文件失败\n");
-		waitKey(0);
-		exit(-1);
-	}
-	if((fp2 = fopen("MI.txt", "w+")) == NULL)
-	{
-		printf("打开MI记录文件失败\n");
-		waitKey(0);
-		exit(-1);
-	}
-	if((fp3 = fopen("Info.txt", "w+")) == NULL)
-	{
-		printf("打开Info记录文件失败\n");
-		waitKey(0);
-		exit(-1);
-	}
 
 	//后处理
 	int level;
@@ -211,8 +191,6 @@ int main()
 			int setValue = -1;
 			setAllNodeValue(newLabels, level, &hierarchicalTree[2*finalNumberOfLabels-2], setValue, csps);
 		
-
-
 			printf("objectNum: %d\n", setValue+1);
 		
 			//放弃层次树结点中的其它信息，只保留层次信息
@@ -296,11 +274,6 @@ int main()
 			printf("MI = %lf", MI);
 			printf("\n *******************************************\n");
 
-
-			//向文件输出vk和MI
-			fprintf(fp1, "%lf\n", vk);
-			fprintf(fp2, "%lf\n", MI);
-			fprintf(fp3, "%d %d %lf %lf\n", kk, objectNum, vk, MI);
 
 			Mat imgMerge = srimg.clone();
 			for (int i = 1; i<height-1; i++)
@@ -472,10 +445,6 @@ int main()
 					waitKey(0);
 		}while(1);
 	}
-
-	fclose(fp1);
-	fclose(fp2);
-	fclose(fp3);
 
     //Deallocate memory
     delete rin;

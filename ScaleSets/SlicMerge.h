@@ -2,8 +2,10 @@
 /*包括超像素实体类定义*/
 extern int width;
 extern int height;
+extern double MI_final;
 
 using namespace std;
+using namespace cv;
 class CSuperPixelSet  //超像素实体类
 {
 public:
@@ -699,6 +701,7 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 
 	//计算VKfirst、MIfirst
 	/*基于初始分割图计算VKfirst和MIfirst*/
+
 	double VK_first = 0, MI_first = 0;
 
 	int *newLabels = new int[height*width] ();
@@ -719,6 +722,7 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum, oNode);
 	double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
 
+	/*计算vk_first*/
 	for (int i = 0; i<objectNum; i++)
 	{
 		double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
@@ -739,6 +743,42 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	vk = sumaq/(width*height);
 	VK_first = vk;
 
+	/*同时输出初始分割图*/
+	Mat imgMerge = srimg.clone();
+	for (int i = 1; i<height-1; i++)
+		for (int j = 1;j<width-1; j++)
+		{
+			//不考虑图像边缘
+			if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+			{
+				if (oNode[newLabels[i*width + j]].haveInit == 0)
+				{
+					oNode[newLabels[i*width + j]].formFeatureInit(width);
+					oNode[newLabels[i*width + j]].spectralFeatureInit();
+					oNode[newLabels[i*width + j]].haveInit = 1;
+				}
+				if (oNode[newLabels[i*width+j]].objectTypes == 1)
+				{
+					imgMerge.data[(i*width+j)*4] = 255;
+					imgMerge.data[(i*width+j)*4+1] = 0;
+					imgMerge.data[(i*width+j)*4+2] = 0;
+					imgMerge.data[(i*width+j)*4+3] = 0;
+				}
+				else
+				{
+					imgMerge.data[(i*width+j)*4] = 0;
+					imgMerge.data[(i*width+j)*4+1] = 0;
+					imgMerge.data[(i*width+j)*4+2] = 255;
+					imgMerge.data[(i*width+j)*4+3] = 0;
+				}
+			}	
+		}
+
+	char str[80];
+	sprintf(str, "out_%d.bmp", 1);
+	imwrite(str, imgMerge);
+
+	/*计算MI_first*/
 	double x_meancolor = 0;
 	double sumB = 0, sumG = 0, sumR = 0;
 	for (int i = 0;i<height;i++)
@@ -778,7 +818,7 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	/*基于完整图像计算VKfinal。MIfinal需依公式自行设定，理论无解*/
 	double tempBsqr = 0, tempGsqr = 0, tempRsqr = 0;
 	double tempSqr = 0, sumSqr = 0;
-	double VK_final = 0, MI_final = 0;
+	double VK_final = 0;
 
 	double avg_B = 0, avg_G = 0, avg_R = 0;
 	for (int i = 0;i<height;i++)
@@ -803,19 +843,16 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	spectualStandDeviation = sqrt(sumSqr/(width*height));
 	VK_final = spectualStandDeviation;
 
-	MI_final = -0.03; //试验影像中，MI的最小值未小于-0.03过
+	//MI_final = -0.03; //试验影像中，MI的最小值未小于-0.03过
 
 	//初始化VK和MI序列
 	vector<double> vk_list;
 	vector<double> MI_list;
-	//vk_list.insert(vk_list.begin(), VK_final);
-	//MI_list.insert(MI_list.begin(), MI_final);
 	vk_list.insert(vk_list.begin(), VK_first);
 	MI_list.insert(MI_list.begin(), MI_first);
 
 	//初始化objectNum序列
 	vector<int> objectNum_list;
-	//objectNum_list.insert(objectNum_list.begin(), 1);
 	objectNum_list.insert(objectNum_list.begin(), objectNum);
 
 	/*融合主部*/
@@ -853,7 +890,7 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 				printf("完成当前异质性阈值下所有融合...\n\n");
 		} while (NodeMerge == true);
 
-		//*融合完成后计算当前层次的vk和MI，并在下一层依据vk和MI调整异质性步长*//
+		/*融合完成后计算当前层次的vk和MI，并在下一层依据vk和MI调整异质性步长*/
 
 		int *newLabels = new int[height*width] ();
 		int setvalue = -1;
@@ -944,7 +981,47 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		printf("\n *******************************************\n");
 		MI_list.insert(MI_list.end(), MI);  //将MI插入序列中
 
-		//fprintf(fp, "%d %d %lf %lf\n", i, objectNum, vk, MI);
+		/*调整步长*/
+		/*
+
+		*************************************************
+
+		*/
+
+		//输出图像
+		Mat imgMerge = srimg.clone();
+		for (int i = 1; i<height-1; i++)
+			for (int j = 1;j<width-1; j++)
+			{
+				//不考虑图像边缘
+				if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+				{
+					if (oNode[newLabels[i*width + j]].haveInit == 0)
+					{
+						oNode[newLabels[i*width + j]].formFeatureInit(width);
+						oNode[newLabels[i*width + j]].spectralFeatureInit();
+						oNode[newLabels[i*width + j]].haveInit = 1;
+					}
+					if (oNode[newLabels[i*width+j]].objectTypes == 1)
+					{
+						imgMerge.data[(i*width+j)*4] = 255;
+						imgMerge.data[(i*width+j)*4+1] = 0;
+						imgMerge.data[(i*width+j)*4+2] = 0;
+						imgMerge.data[(i*width+j)*4+3] = 0;
+					}
+					else
+					{
+						imgMerge.data[(i*width+j)*4] = 0;
+						imgMerge.data[(i*width+j)*4+1] = 0;
+						imgMerge.data[(i*width+j)*4+2] = 255;
+						imgMerge.data[(i*width+j)*4+3] = 0;
+					}
+				}	
+			}
+			//输出图像
+			char str[80];
+			sprintf(str, "out_%d_.bmp", i + 1);
+			imwrite(str, imgMerge);
 
 		//释放内存
 		delete [] newLabels;
@@ -956,9 +1033,36 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	}
 	printf("***************\n 尺度集序列总数 = %d\n*****************\n", nowLevel-1);
 
+
+	MI_list[MI_list.size()-1] = MI_final;  //替换
+
+	double *MI_list_approximate = new double[MI_list.size()];  //修正MI使其单减
+	MI_list_approximate[0] = MI_list[0];
+	for (int i = 1; i<MI_list.size(); i++)
+	{
+		if(MI_list[i]>MI_list_approximate[i-1])
+			MI_list_approximate[i] = MI_list_approximate[i-1];
+		else
+			MI_list_approximate[i] = MI_list[i];
+	}
+
+	double vk_MAX, vk_MIN, MI_MAX, MI_MIN;
+	vk_MAX = vk_list[vk_list.size()-1];
+	vk_MIN = vk_list[0];
+	MI_MAX = MI_list_approximate[0];
+	MI_MIN = MI_list_approximate[MI_list.size()-1];
+
+	vector<double> P_U, P_O;
+	for (int i = 0; i<vk_list.size(); i++)
+	{
+		P_U.insert(P_U.end(), (vk_list[i]- vk_MIN)/(vk_MAX- vk_MIN));
+		P_O.insert(P_O.end(), (MI_list_approximate[i] - MI_MIN)/(MI_MAX - MI_MIN));
+	}
+
+
 	//输出所有序列信息到文件中
 	for (int i = 0; i<vk_list.size(); i++)
-		fprintf(fp, "%d %d %lf %lf\n", i+1, objectNum_list[i], vk_list[i], MI_list[i]);
+		fprintf(fp, "%d %d %lf %lf %lf %lf %lf\n", i+1, objectNum_list[i], vk_list[i], MI_list[i], MI_list_approximate[i], P_U[i], P_O[i]);
 
 	fclose(fp);
 	return nowLevel;

@@ -1,4 +1,4 @@
-﻿生成启动时间为 2019/10/24 3:02:32。
+﻿生成启动时间为 2019/10/24 16:25:09。
      1>项目“C:\Users\Admin\Desktop\ScaleSets\ScaleSets\ScaleSets.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Debug\ScaleSets.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
@@ -15,25 +15,34 @@
      1>c:\users\admin\desktop\scalesets\scalesets\slic.h(140): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
      1>c:\users\admin\desktop\scalesets\scalesets\slic.h(141): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
      1>c:\users\admin\desktop\scalesets\scalesets\slic.h(142): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(439): warning C4101: “endTime”: 未引用的局部变量
-     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(694): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(441): warning C4101: “endTime”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(696): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : 参见“fopen”的声明
-     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(727): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(886): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(960): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(120): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(222): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(316): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(731): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(778): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : 参见“sprintf”的声明
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(325): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(923): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(1023): warning C4258: “i”: 忽略 For 循环中的定义；使用封闭范围中的定义
+                 c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(993) : 忽略“i”的定义
+                 c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(859) : 使用“i”的定义
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(1023): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : 参见“sprintf”的声明
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(1041): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(1056): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\slicmerge.h(1064): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(122): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(223): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(317): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : 参见“sprintf”的声明
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(326): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(304) : 参见“scanf”的声明
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(356): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(31): warning C4101: “y”: 未引用的局部变量
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(31): warning C4101: “x”: 未引用的局部变量
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(30): warning C4101: “i”: 未引用的局部变量
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(41): warning C4101: “outlabels”: 未引用的局部变量
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(30): warning C4101: “ii”: 未引用的局部变量
-     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(40): warning C4101: “outputNumSuperpixels”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(357): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(32): warning C4101: “y”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(32): warning C4101: “x”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(31): warning C4101: “i”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(42): warning C4101: “outlabels”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(31): warning C4101: “ii”: 未引用的局部变量
+     1>c:\users\admin\desktop\scalesets\scalesets\scalesetsmain.cpp(41): warning C4101: “outputNumSuperpixels”: 未引用的局部变量
        ManifestResourceCompile:
          所有输出均为最新。
        Link:
@@ -52,4 +61,4 @@
 
 生成成功。
 
-已用时间 00:00:01.76
+已用时间 00:00:02.41

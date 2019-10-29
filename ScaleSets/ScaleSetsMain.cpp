@@ -181,6 +181,22 @@ int main()
 	totalLevel -= 1;   //debug状态下显示部分节点信息，最高层只有一个节点，会报错
 	/***************************************/
 
+	//输出层次树信息 用来可视化
+	FILE *fp;
+	if((fp = fopen("treeInfo.txt", "w+")) == NULL)
+	{
+		printf("打开treeInfo记录文件失败\n");
+		exit(-1);
+	}
+
+	for (int i = finalNumberOfLabels ; i<2*finalNumberOfLabels-1; i++)
+	{
+		fprintf(fp, "%d %d\n", hierarchicalTree[i].left->ID, hierarchicalTree[i].right->ID);
+	}
+
+	fclose(fp);
+
+
 	//后处理
 	int level;
 	int *newLabels = new int[height*width] ();

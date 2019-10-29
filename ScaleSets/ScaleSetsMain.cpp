@@ -48,7 +48,7 @@ int main()
 	double maxDiffence = 200;//default value
 	bool openShowMergeImg = false;
 	
-	numSuperpixels = 3000; //**超像素个数,适用于demo
+	numSuperpixels = 100; //**超像素个数,适用于demo
     compactness = 10; //**紧凑度
 	maxDiffence = 20; //**允许的最大异质性数值
 	openShowMergeImg = true; //**是否开启展示融合效果  开启后可以定向查看每一个层级的融合效果，关闭则导出每个层级的信息  ***程序逻辑改动后建议开启

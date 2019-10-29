@@ -416,13 +416,13 @@ void createToplogicalGraph(int*clabels, int width, int height, ArrayHeadGraphNod
 		printf("-----------\n");
 		printf("ÁÚ½Ó±í¼ì²é£º\n");
 		forward_list<GraphNode>::iterator it;
-		for (it = mAhgn[30].pGraphNodeList.begin(); it!= mAhgn[30].pGraphNodeList.end(); it++)
+		for (it = mAhgn[0].pGraphNodeList.begin(); it!= mAhgn[0].pGraphNodeList.end(); it++)
 			printf("%d -> ", it->ID);
 		printf("\n");
-		for (it = mAhgn[256].pGraphNodeList.begin(); it!= mAhgn[256].pGraphNodeList.end(); it++)
+		for (it = mAhgn[1].pGraphNodeList.begin(); it!= mAhgn[1].pGraphNodeList.end(); it++)
 			printf("%d -> ", it->ID);
 		printf("\n");
-		for (it = mAhgn[1024].pGraphNodeList.begin(); it!= mAhgn[1024].pGraphNodeList.end(); it++)
+		for (it = mAhgn[2].pGraphNodeList.begin(); it!= mAhgn[2].pGraphNodeList.end(); it++)
 			printf("%d -> ", it->ID);
 		printf("\n");
 		printf("-----------\n");

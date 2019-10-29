@@ -1,4 +1,4 @@
-﻿生成启动时间为 2019/10/28 17:54:54。
+﻿生成启动时间为 2019/10/29 18:27:26。
      1>项目“C:\Users\75198\OneDrive\ScaleSets\ScaleSets\ScaleSets.vcxproj”在节点 2 上(build 个目标)。
      1>InitializeBuildStatus:
          正在创建“Debug\ScaleSets.unsuccessfulbuild”，因为已指定“AlwaysCreate”。
@@ -31,12 +31,14 @@
      1>c:\users\75198\onedrive\scalesets\scalesets\slicmerge.h(1056): warning C4018: “<”: 有符号/无符号不匹配
      1>c:\users\75198\onedrive\scalesets\scalesets\slicmerge.h(1064): warning C4018: “<”: 有符号/无符号不匹配
      1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(122): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(223): warning C4018: “<”: 有符号/无符号不匹配
-     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(317): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(186): warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+                 c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(234) : 参见“fopen”的声明
+     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(239): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(333): warning C4996: 'sprintf': This function or variable may be unsafe. Consider using sprintf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(371) : 参见“sprintf”的声明
-     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(326): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
+     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(342): warning C4996: 'scanf': This function or variable may be unsafe. Consider using scanf_s instead. To disable deprecation, use _CRT_SECURE_NO_WARNINGS. See online help for details.
                  c:\program files (x86)\microsoft visual studio 10.0\vc\include\stdio.h(304) : 参见“scanf”的声明
-     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(357): warning C4018: “<”: 有符号/无符号不匹配
+     1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(373): warning C4018: “<”: 有符号/无符号不匹配
      1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(32): warning C4101: “y”: 未引用的局部变量
      1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(32): warning C4101: “x”: 未引用的局部变量
      1>c:\users\75198\onedrive\scalesets\scalesets\scalesetsmain.cpp(31): warning C4101: “i”: 未引用的局部变量
@@ -61,4 +63,4 @@
 
 生成成功。
 
-已用时间 00:00:02.08
+已用时间 00:00:01.79

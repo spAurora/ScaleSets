@@ -530,7 +530,7 @@ void calculateUnion(int childNodeLoc_1, int childNodeLoc_2, int graphAndTreeEnd,
 	//翻转
 	mAhgn[graphAndTreeEnd].pGraphNodeList.reverse();
 	endTime = clock();
-	cout << "取并集part1:Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+	//cout << "取并集part1:Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 
 	//check
 	if(mAhgn[childNodeLoc_1].pGraphNodeList.empty() == true)
@@ -560,7 +560,7 @@ void calculateUnion(int childNodeLoc_1, int childNodeLoc_2, int graphAndTreeEnd,
 		}
 	}
 	endTime = clock();
-	cout << "取并集part2:Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+	//cout << "取并集part2:Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 }
 
 //递归深搜
@@ -594,12 +594,12 @@ void DFS(int location,int *vnum, ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchic
 				NodeMerge = true;
 				graphAndTreeEnd++;
 				
-				printf("融合即将开始,两结点c1 c2下标为%d, %d\n, level: %d\n", location, mit->ID, nowLevel);
+				//printf("融合即将开始,两结点c1 c2下标为%d, %d\n, level: %d\n", location, mit->ID, nowLevel);
 				//printf("开始融合：\n");
-				startTime = clock();
+				//startTime = clock();
 				calculateUnion(location, mit->ID, graphAndTreeEnd, mAhgn, hierarchicalTree); //拓扑图取并集********
-				endTime = clock();
-				cout << "取并集Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+				//endTime = clock();
+				//cout << "取并集Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
 				
 
 				//写入新树结点数据
@@ -660,7 +660,7 @@ void traversalAndMerge(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree,int
 			int mDepth = 0;
 			//printf("从第%d开始遍历\n", i);
 			DFS(i, vnum, mAhgn, hierarchicalTree, graphAndTreeEnd, nowLevel, allowDifference, NodeMerge, superPixelNum, mDepth); //图是完全连通的
-			printf("递归深度:%d\n",mDepth);
+			//printf("递归深度:%d\n",mDepth);
 			break;
 		}
 	delete vnum;
@@ -696,6 +696,12 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	if((fp = fopen("Info.txt", "w+")) == NULL)
 	{
 		printf("打开Info记录文件失败\n");
+		exit(-1);
+	}
+	FILE *fp1;
+	if((fp1 = fopen("time.txt", "w+")) == NULL)
+	{
+		printf("打开time记录文件失败\n");
 		exit(-1);
 	}
 
@@ -748,8 +754,8 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	for (int i = 1; i<height-1; i++)
 		for (int j = 1;j<width-1; j++)
 		{
-			//不考虑图像边缘
-			if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+			//不考虑图像边缘  11 16改
+			if ( newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1])
 			{
 				if (oNode[newLabels[i*width + j]].haveInit == 0)
 				{
@@ -855,7 +861,11 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	vector<int> objectNum_list;
 	objectNum_list.insert(objectNum_list.begin(), objectNum);
 
+	/***************************************************************************************************/
+	/***************************************************************************************************/
+	/***************************************************************************************************/
 	/*融合主部*/
+	double totalMergeTime = 0, totalCalTime = 0, totalOutputTime = 0;
 	for (int i = 1; i <= levelindex; i++)
 	{
 		nowLevel++;
@@ -874,24 +884,34 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		printf("allDifference:%lf\n", allowDifference);
 
 		NodeMerge = false;
+
+		clock_t startTime_merge,endTime_merge, startTime_calvkmi, endTime_calvkmi, startTime_output, endTime_output; 
+		
+		startTime_merge = clock();
 		do 
 		{	
 			NodeMerge = false;
 			//遍历并创建层次树
-			clock_t startTime,endTime; 
-			startTime = clock();
+			//clock_t startTime,endTime; 
+			//startTime = clock();
 			/*************/
 			//遍历并融合节点（只融合一次）
 			traversalAndMerge(mAhgn, hierarchicalTree, graphAndTreeEnd, nowLevel, allowDifference, NodeMerge, superPixelnum);
 			/*************/
-			endTime = clock();
-			cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
-			if (NodeMerge == false)
-				printf("完成当前异质性阈值下所有融合...\n\n");
+			//endTime = clock();
+			//cout << "Totle Time : " <<(double)(endTime - startTime) / CLOCKS_PER_SEC << "s" << endl;
+			//if (NodeMerge == false)
+				//printf("完成当前异质性阈值下所有融合...\n\n");
 		} while (NodeMerge == true);
+		endTime_merge = clock();
+		fprintf(fp1, "%.3lf ", (double)(endTime_merge-startTime_merge)/1000);
+		totalMergeTime+=(double)(endTime_merge-startTime_merge)/1000;
+		
+
+		printf("完成当前异质性阈值下所有融合...\n\n");
+
 
 		/*融合完成后计算当前层次的vk和MI，并在下一层依据vk和MI调整异质性步长*/
-
 		int *newLabels = new int[height*width] ();
 		int setvalue = -1;
 
@@ -913,6 +933,8 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		createNewObjectSet(newLabels, srimg, oNode, objectNum, width, height);
 		createNewToplogicalGraph(newLabels, width, height, newAHGn, objectNum, oNode);
 
+		startTime_calvkmi = clock();
+
 		double vk = 0, sumaq = 0, tempaq = 0, spectualStandDeviation = 0;
 
 		for (int i = 0; i<objectNum; i++)
@@ -933,9 +955,9 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 			sumaq += tempaq;
 		}
 		vk = sumaq/(width*height);
-		printf("\n *******************************************\n");
-		printf("vk = %lf", vk);
-		printf("\n *******************************************\n");
+		//printf("\n *******************************************\n");
+		//printf("vk = %lf", vk);
+		//printf("\n *******************************************\n");
 		vk_list.insert(vk_list.end(), vk);  //将vk插入vk序列中
 
 		//计算MI
@@ -976,10 +998,14 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 
 		double MI = 0;
 		MI = ((N*sumXijmean)/2) / (sumWij*sumXii);
-		printf("\n *******************************************\n");
-		printf("MI = %lf", MI);
-		printf("\n *******************************************\n");
+		//printf("\n *******************************************\n");
+		//printf("MI = %lf", MI);
+		//printf("\n *******************************************\n");
 		MI_list.insert(MI_list.end(), MI);  //将MI插入序列中
+
+		endTime_calvkmi = clock();
+		fprintf(fp1, "%.3lf ", (double)(endTime_calvkmi-startTime_calvkmi)/1000);
+		totalCalTime+=(double)(endTime_calvkmi-startTime_calvkmi)/1000;
 
 		/*调整步长*/
 		/*
@@ -989,12 +1015,15 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 		*/
 
 		//输出图像
+		startTime_output = clock();
+		
+
 		Mat imgMerge = srimg.clone();
 		for (int i = 1; i<height-1; i++)
 			for (int j = 1;j<width-1; j++)
 			{
-				//不考虑图像边缘
-				if (newLabels[i*width + j] != newLabels[(i-1)*width +j] || newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] || newLabels[i*width + j] != newLabels[i*width + j-1])
+				//不考虑图像边缘   11.16改了 边缘变细
+				if ( newLabels[i*width + j] != newLabels[(i+1)*width +j] || newLabels[i*width + j] != newLabels[i*width +j+1] )
 				{
 					if (oNode[newLabels[i*width + j]].haveInit == 0)
 					{
@@ -1022,15 +1051,21 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 			char str[80];
 			sprintf(str, "out_%d_.bmp", i + 1);
 			imwrite(str, imgMerge);
+		endTime_output = clock();
+		fprintf(fp1, "%.3lf\n", (double)(endTime_output-startTime_output)/1000);
+		totalOutputTime+=(double)(endTime_output-startTime_output)/1000;
 
 		//释放内存
 		delete [] newLabels;
-		printf("释放newLabels成功\n");
+		//printf("释放newLabels成功\n");
 		delete [] oNode;
-		printf("释放oNode成功\n");
+		//printf("释放oNode成功\n");
 		delete [] newAHGn;
-		printf("释放newAHGn成功\n");
+		//printf("释放newAHGn成功\n");
 	}
+	/***************************************************************************************************/
+	/***************************************************************************************************/
+	/***************************************************************************************************/
 	printf("***************\n 尺度集序列总数 = %d\n*****************\n", nowLevel-1);
 
 
@@ -1063,7 +1098,9 @@ int createHierarchicalTree(ArrayHeadGraphNode* mAhgn,BTreeNode* hierarchicalTree
 	//输出所有序列信息到文件中
 	for (int i = 0; i<vk_list.size(); i++)
 		fprintf(fp, "%d %d %lf %lf %lf %lf %lf\n", i+1, objectNum_list[i], vk_list[i], MI_list[i], MI_list_approximate[i], P_U[i], P_O[i]);
+	fprintf(fp1, "%.3lf %.3lf %.3lf\n", totalMergeTime, totalCalTime, totalOutputTime);
 
 	fclose(fp);
+	fclose(fp1);
 	return nowLevel;
 }
